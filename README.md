@@ -138,6 +138,7 @@ democracy : 3
 
 # Note:
 export BROWSERSTACK_USERNAME=your_username
+
 export BROWSERSTACK_ACCESS_KEY=your_access_key
 
 # output
