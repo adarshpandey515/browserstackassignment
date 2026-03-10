@@ -1,162 +1,162 @@
-import re
+import requests
 from collections import Counter
-from urllib.parse import urljoin, urlparse
-
+from urllib.parse import urljoin
 from deep_translator import GoogleTranslator
+from bs4 import BeautifulSoup
+from collections import Counter
+
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 
-BASE_URL = "https://elpais.com"
-OPINION_URL = "https://elpais.com/opinion/"
+BASE_URL = "https://elpais.com/opinion/"
 
 
-# this one filters only real article links in opinion section
+def get_first_five_articles(driver):
+    driver.get(BASE_URL)
 
-def looks_like_real_opinion_article(one_link):
-    if not one_link:
-        return False
+    soup = BeautifulSoup(driver.page_source, "html.parser")
 
-    parsed = urlparse(one_link)
-    path_value = parsed.path.lower()
+    anchors = soup.select("article h2 a")
 
-    if "/opinion/" not in path_value:
-        return False
+    titles = []
+    links = []
 
-    skip_parts = [
-        "/opinion/",
-        "/opinion/editoriales",
-        "/opinion/columnas",
-        "/opinion/tribunas",
-        "/opinion/cartas-al-director",
-        "/autor/",
-        "/tag/",
-    ]
+    for a in anchors:
+        title = a.get_text(strip=True)
+        link = a.get("href")
 
-    for one_skip in skip_parts:
-        if path_value.rstrip("/") == one_skip.rstrip("/"):
-            return False
-
-    # usually article url has date like /2026-03-10/
-    if re.search(r"/\d{4}-\d{2}-\d{2}/", path_value):
-        return True
-
-    # fallback if last slug looks article-like
-    bits = [x for x in path_value.split("/") if x]
-    return len(bits) >= 4
-
-
-
-def get_first_five_headlines(driver):
-    driver.get(OPINION_URL)
-
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.TAG_NAME, "article"))
-    )
-
-    lang_now = driver.execute_script(
-        "return document.documentElement.lang || '';"
-    )
-    print("Website lang:", lang_now)
-    if "es" in str(lang_now).lower():
-        print("Spanish check passed.")
-    else:
-        print("Spanish check uncertain, continuing.")
-
-    links_collected = []
-    already_seen = set()
-
-    all_anchors = driver.find_elements(By.CSS_SELECTOR, "article a")
-    for a in all_anchors:
-        href = (a.get_attribute("href") or "").strip()
-        txt = (a.text or "").strip()
-
-        if not href:
+        if not link:
             continue
 
-        href = urljoin(BASE_URL, href)
+        link = urljoin("https://elpais.com", link)
 
-        if href in already_seen:
+        # keep only real opinion articles
+        if "/opinion/" not in link:
             continue
 
-        if not looks_like_real_opinion_article(href):
+        if not link.endswith(".html"):
             continue
 
-        if not txt:
-            continue
+        titles.append(title)
+        links.append(link)
 
-        links_collected.append({"title_es": txt, "url": href})
-        already_seen.add(href)
-
-        if len(links_collected) == 5:
+        if len(links) == 5:
             break
 
-    return links_collected
+    return titles, links
+
+
+def get_article_content_and_image(driver, url):
+    driver.get(url)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    paragraphs = soup.select('div[data-dtm-region="articulo_cuerpo"] p')
+
+    content = []
+    for p in paragraphs:
+        text = p.get_text(strip=True)
+        if text:
+            content.append(text)
+
+    content_text = "\n".join(content)
+
+    img_tag = soup.select_one("figure img")
+    img_url = None
+
+    if img_tag:
+        img_url = img_tag.get("src")
+
+    return content_text, img_url
+
+
+def download_image(url, index):
+    if not url:
+        print("No image found")
+        return
+
+    try:
+        r = requests.get(url, timeout=10)
+
+        filename = f"article_{index}.jpg"
+
+        with open(filename, "wb") as f:
+            f.write(r.content)
+
+        print("Image saved:", filename)
+
+    except:
+        print("Could not download image")
+
+
+def translate_titles(spanish_titles):
+    translator = GoogleTranslator(source="es", target="en")
+
+    translated = []
+    for t in spanish_titles:
+        translated.append(translator.translate(t))
+
+    return translated
 
 
 
-def translate_titles(all_titles_es):
-    translator_obj = GoogleTranslator(source="es", target="en")
-    out_data = []
+def find_repeated_words(titles):
 
-    for t in all_titles_es:
-        try:
-            out_data.append(translator_obj.translate(t))
-        except Exception:
-            out_data.append("(translation failed)")
+    words = []
 
-    return out_data
+    for t in titles:
+        words += t.lower().split()
+
+    counter = Counter(words)
 
 
+    found = False
 
-def repeated_words_more_than_two(all_titles_en):
-    bag = []
-    for title in all_titles_en:
-        words = re.findall(r"[a-z']+", title.lower())
-        bag.extend(words)
+    for word, count in counter.items():
+        if count > 2:
+            print("\nWords repeated more than twice:\n")
+            print(word, ":", count)
+            found = True
 
-    counter_data = Counter(bag)
-    return {k: v for k, v in counter_data.items() if v > 2}
-
+    if not found:
+        print("No words repeated more than twice")
 
 
 def main():
+
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
 
     driver = webdriver.Chrome(options=chrome_options)
 
     try:
-        first_five = get_first_five_headlines(driver)
 
-        if not first_five:
-            print("No headlines found")
-            return
+        titles, links = get_first_five_articles(driver)
 
-        print("\nFirst 5 Opinion headlines in Spanish:")
-        title_list_es = []
-        for i, h in enumerate(first_five, 1):
-            print(f"{i}. {h['title_es']}")
-            print(f"   {h['url']}")
-            title_list_es.append(h["title_es"])
+        print("\nFIRST 5 OPINION ARTICLES (SPANISH)\n")
 
-        translated = translate_titles(title_list_es)
-        print("\nTranslated headlines in English:")
-        for i, line in enumerate(translated, 1):
-            print(f"{i}. {line}")
+        for i in range(len(links)):
 
-        repeated = repeated_words_more_than_two(translated)
-        print("\nWords repeated more than 2 times:")
-        if not repeated:
-            print("No repeated words over threshold")
-        else:
-            for w, c in sorted(repeated.items(), key=lambda x: (-x[1], x[0])):
-                print(f"{w}: {c}")
+            print("\n-----------------------------")
+            print("TITLE:", titles[i])
+            print("-----------------------------\n")
+
+            content, img = get_article_content_and_image(driver, links[i])
+
+            print(content[:500])
+
+            download_image(img, i + 1)
+
+        translated_titles = translate_titles(titles)
+
+        print("\nTRANSLATED TITLES (ENGLISH)\n")
+
+        for t in translated_titles:
+            print(t)
+
+        find_repeated_words(translated_titles)
 
     finally:
         driver.quit()

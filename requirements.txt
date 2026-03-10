@@ -1,2 +1,6 @@
-
 selenium
+deep-translator
+beautifulsoup4
+requests
+browserstack-local >= 1.2.3
+browserstack-sdk
