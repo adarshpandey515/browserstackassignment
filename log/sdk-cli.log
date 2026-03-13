@@ -14,3 +14,22 @@
 2026-03-10T15:52:47.810Z CLI info  [adarshpandey_X6nGu2]  [jfuzmx2xinm5agxftrdfnjgwcdrw439r0hkeowcs]  [255fcd22-1b31-483c-9712-4db65b6e6474]  [PRODUCTION] Making POST request to https://api.browserstack.com
 2026-03-10T15:52:48.462Z CLI info [TEST REPORTING AND ANALYTICS:module]  [adarshpandey_X6nGu2]  [jfuzmx2xinm5agxftrdfnjgwcdrw439r0hkeowcs]  [255fcd22-1b31-483c-9712-4db65b6e6474]  Visit https://automation.browserstack.com/builds/jfuzmx2xinm5agxftrdfnjgwcdrw439r0hkeowcs to view build report, insights, and many more debugging information all at one place!
 2026-03-10T15:52:50.998Z CLI info [main]  [adarshpandey_X6nGu2]  [jfuzmx2xinm5agxftrdfnjgwcdrw439r0hkeowcs]  [255fcd22-1b31-483c-9712-4db65b6e6474]  Received graceful signal termination (SIGTERM), performing cleanup
+2026-03-13T07:06:15.869Z CLI info     Config : {"userName":"[REDACTED]","accessKey":"[REDACTED]","platforms":[{"os":"Windows","osVersion":"10","browserName":"Chrome","browserVersion":"120.0"},{"os":"Windows","osVersion":"11","browserName":"Edge","browserVersion":"latest"},{"os":"OS X","osVersion":"Monterey","browserName":"Safari","browserVersion":"15.6"},{"os":"OS X","osVersion":"Ventura","browserName":"Chrome","browserVersion":"latest"},{"deviceName":"iPhone 13","osVersion":"15","browserName":"Chromium","deviceOrientation":"portrait"}],"browserstackLocal":true,"buildName":"browserstack-build-1","projectName":"BrowserStack Sample"}
+2026-03-13T07:06:15.890Z CLI info     Should start debug utility: undefined
+2026-03-13T07:06:15.894Z CLI info [testhub:module]  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  Starting testhub from 10370:0
+2026-03-13T07:06:15.896Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making POST request to https://sdk.browserstack.com
+2026-03-13T07:06:15.899Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making GET request to https://hub.browserstack.com
+2026-03-13T07:06:16.923Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making GET request to https://hub-aps.browserstack.com
+2026-03-13T07:06:16.926Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making GET request to https://hub-euw.browserstack.com
+2026-03-13T07:06:16.928Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making GET request to https://hub-apse.browserstack.com
+2026-03-13T07:06:20.961Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making POST request to https://collector-observability.browserstack.com
+2026-03-13T07:06:25.971Z CLI error [testhub:module]  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  startBuild: error=TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+    at /snapshot/browserstack-binary/cli/dist/index.js
+    at /snapshot/browserstack-binary/cli/dist/index.js
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-03-13T07:06:25.972Z CLI error  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  error invoking callback for eventName: {}
+2026-03-13T07:06:25.972Z CLI error  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+    at /snapshot/browserstack-binary/cli/dist/index.js
+    at /snapshot/browserstack-binary/cli/dist/index.js
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-03-13T07:06:25.976Z CLI info  [adarshpandey_X6nGu2]   [b9e3421e-9715-42cd-ae9b-49f8f6a4adcf]  [PRODUCTION] Making POST request to https://api.browserstack.com
